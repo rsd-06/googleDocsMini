@@ -1,16 +1,233 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
+import { type Level } from "@tiptap/extension-heading";
 
-import { BoldIcon, ItalicIcon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SpellCheck2Icon, UnderlineIcon, Undo2Icon } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+import { BoldIcon, ChevronDownIcon, ItalicIcon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SpellCheck2Icon, UnderlineIcon, Undo2Icon } from "lucide-react";
 
 import { useEditorStore } from "@/app/store/use-editor-store";
 
+//Defining little complex components such as FontFamilySelector;
+const FontFamilySelector = () => {
+    
+    const { editor } = useEditorStore();
+
+    const fontFamilies = [
+        { name: "Arial", value: "Arial, sans-serif" },
+        { name: "Georgia", value: "Georgia, serif" },
+        { name: "Times New Roman", value: "'Times New Roman', serif" },
+        { name: "Courier New", value: "'Courier New', monospace" },
+        { name: "Verdana", value: "Verdana, sans-serif" },
+    ];
+
+    /*DropdownMenu from our ui library is used to create a dropdown menu for selecting font families.
+
+    DropdownMenuTrigger :
+        This defines what element opens the dropdown.
+        It wraps any element (button, div, icon, etc.) that should toggle the menu open/close.
+        Without it, clicking the button wouldn’t open the dropdown.
+
+        Why asChild?
+        asChild means:
+            “Don’t render a <button> inside another <button>.”
+            Instead, use my button as the trigger element.
+            Without asChild, Radix would wrap your element like this:
+                <button> <-- Radix adds its own button
+                    <button>My real button</button> <-- invalid HTML!!
+                </button>
+            
+            Browsers break when you put <button> inside <button>.
+            So asChild tells Radix:
+                👉 “Use the element I give you directly as the trigger.”
+
+    DropdownMenuContent :
+        This is the actual dropdown menu that appears when you click the trigger.
+        It contains the list of font family options.
+
+    DropdownMenuItem :
+        Each item inside the DropdownMenuContent.
+        Represents a selectable option (a font family in this case).
+
+    What is <ChevronDownIcon /> ?
+        It’s just an SVG icon shaped like a down arrow: ▼
+        Used to show that the button is a dropdown.
+    */
+
+    /*editor?.getAttributes("textStyle").fontFamily === value && "bg-neutral-200/80"
+    
+        Break it down:
+
+            editor?.getAttributes("textStyle")
+            Gets all attributes of the textStyle mark (like fontSize, color, fontFamily).
+
+            .fontFamily
+            Gets the current font family applied to the selected text.
+
+            === value
+            Checks if this dropdown item is the currently selected font.
+
+            && "bg-neutral-200/80"
+            If true → return "bg-neutral-200/80" (a light gray background)
+            If false → return false (ignored by cn())
+
+            So it highlights the active font family in the dropdown.
+    */
+
+    /*What is truncate class ? :
+        truncate does:
+            If text is too long → it cuts it off
+            Replaces overflow with …
+            Makes button text neat, prevents layout breaks
+    */
+    
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button className="h-7 w-[120px] shrink-0 flex items-center justify-between rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm"
+                >
+                    <span className="truncate">
+                        {editor?.getAttributes("textStyle").fontFamily || "Arial"}
+                    </span>
+                    <ChevronDownIcon className="ml-2 size-4 shrink-0"/>
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="p-1 flex flex-col gap-y-1">
+                {
+                    fontFamilies.map(({ name, value }) => (
+                        <button
+                            key = {name}
+                            className={cn(
+                                "flex items-center gap-x-2 px-2 py-1 rounded-sm hover:bg-neutral-200/80",
+                                editor?.getAttributes("textStyle").fontFamily === value && "bg-neutral-200/80"
+                            )}
+                            style={ { fontFamily: value } }
+                            onClick={() => editor?.chain().focus().setFontFamily(value).run()}
+                        >
+                            <span className="text-sm">{name}</span>
+                        </button>
+                    ))
+                }
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+};
+
+const HeadingLevelSelector = () => {
+
+    const { editor } = useEditorStore();
+
+    const headingLevels = [
+        { label : "Normal Text", level : 0, fontSize : "16px"},
+        { label : "Heading 1", level : 1, fontSize : "32px"},
+        { label : "Heading 2", level : 2, fontSize : "24px"},
+        { label : "Heading 3", level : 3, fontSize : "18px"},
+        { label : "Heading 4", level : 4, fontSize : "16px"}
+    ];
+
+    /*editor?.isActive("heading", { level : level })
+        Break it down:
+            editor?.isActive("heading", { level : level })
+            Checks if the current selection is a heading of the specified level.
+
+            isActive(typeName):
+                For marks (bold, italic), it checks if the style is active.
+                For nodes (paragraph, heading), it checks the current node type.
+
+            In TipTap Every heading has a level:
+                1 → <h1>
+                2 → <h2>
+                3 → <h3>
+                4 → <h4>
+
+            So TipTap’s heading extension defines nodes like:
+                {
+                    type: 'heading',
+                    attrs: { level: 1 | 2 | 3 | 4 | 5 | 6 }
+                }
+            
+            Here, we check if the current selection is a heading with the specific level.
+            It returns true if the selection is a heading of that level, false otherwise.
+
+            🔥 So when you call:
+                editor.isActive("heading", { level: 2 })
+
+                It checks:
+                    “Is the current selection a <h2>?”
+                If yes → returns true
+                If no → returns false
+
+            🧩 Why not just use editor.isActive("heading") alone?
+                s you if heading exists, not which level.
+
+            So, 
+                editor.isActive("heading") :
+                    Checks if cursor is inside any heading
+
+                editor.isActive("heading", { level: 2 }) :
+                    Checks if cursor is specifically inside a Heading 2
+
+            This allows us to determine the exact heading level for the dropdown selection.
+    */
+    
+    // Function to get the current heading level label;
+    const getCurrentHeadingLevel = () => {
+        for ( let num = 1; num <=4; num++) {
+            if ( editor?.isActive("heading", { level : num } )){ //editor.isActive("heading", { level: 2 }) : Checks if cursor is specifically inside a Heading 2
+                return `Heading ${num}`;
+            }
+        }
+
+        return "Normal Text";
+    };
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button className="h-7 min-w-7 shrink-0 flex items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm"
+                >
+                    <span className="truncate">
+                        {getCurrentHeadingLevel()}
+                    </span>
+                    <ChevronDownIcon className="ml-2 size-4 shrink-0"/>
+                </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="p-1 flex flex-col gap-y-1">
+                {
+                    headingLevels.map ( ({ label, level, fontSize }) => (
+                        <button
+                            key =  {level}
+                            className = {cn(
+                                "flex items-center gap-x-2 px-2 py-1 rounded-sm hover:bg-neutral-200/80",
+                                (editor?.isActive("heading", { level : level} || level === 0 && !editor?.isActive("heading") )) && "bg-neutral-200/80")
+                            }
+                            style={ { fontSize: fontSize } } //Applying font size to each heading level in the dropdown. So that the preview looks accurate to the heading Size and the user can see how the heading will look.
+                            onClick={ () => {
+                                if( level === 0){
+                                    editor?.chain().focus().setParagraph().run();
+                                    return;
+                                }else {
+                                    editor?.chain().focus().toggleHeading({level : level as Level}).run();
+                                    return;
+                                };
+                            } }
+                        >
+                            {label}
+                        </button>
+                    ) )
+                }
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+};
+
+
 interface ToolBarButtonProps {
-    onClick : () => void;
+    onClick? : () => void;
     isActive? : boolean;
-    icon : LucideIcon
+    icon?: LucideIcon
 };
 
 const ToolBarButton = ( {onClick, isActive, icon : Icon} : ToolBarButtonProps ) => {
@@ -36,7 +253,7 @@ export const ToolBar = () => {
     const { editor } = useEditorStore();
 
     interface ToolBarItem extends ToolBarButtonProps {
-        label : string;
+        label? : string;
     };
 
     // Array of sections, each section is an array of ToolBarItems; Each section can be mapped to a group of buttons in the toolbar, for eg; bold, itailic, underline can be one section.
@@ -92,6 +309,22 @@ export const ToolBar = () => {
                 onClick: () => {
                     editor?.chain().focus().toggleBold().run();
                 }, 
+                /*The method editor.isActive(name: string) checks if a given mark or node type is active in the current selection.
+                
+                isActive(typeName):
+                    For marks (bold, italic), it checks if the style is active.
+                    For nodes (paragraph, heading), it checks the current node type.
+                
+                Here :
+                It returns:
+                    true if the current text selection (or cursor position) has the “bold” mark applied,
+                    false otherwise. 
+
+                editor?. → ensures the code doesn’t break if editor is null (for example, before it finishes initializing).
+
+                If editor exists, it calls .isActive("bold").
+                If not, it defaults to false.
+                */
                 isActive: editor?.isActive("bold") || false
             },
             {
@@ -144,23 +377,37 @@ export const ToolBar = () => {
 
     return ( 
         <div className="bg-[#F1F4F9] px-2.5 py-0.5 rounded-[24px] shadow flex items-center gap-x-0.5 border border-[#C7C7C7] min-h-[40px] overflow-x-auto print:hidden">
-           {
-                sections.map((section, sectionIndex) => (
-                    <div key={sectionIndex} className="flex items-center">
-                        {section.map((toolBarItem) => (
-                            <ToolBarButton 
-                                key={toolBarItem.label}
-                                {...toolBarItem}
-                            />
-                        ))}
 
-                        {/* Render separator only if it's NOT the last section */}
-                        {sectionIndex < sections.length - 1 && (
-                        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
-                        )}
-                    </div>
-                ))
-        }
+        {sections[0].map((toolBarItem) => (
+            <ToolBarButton 
+                key={toolBarItem.label}
+                {...toolBarItem}
+            />
+        ))}
+        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
+
+        <FontFamilySelector />
+        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
+
+        <HeadingLevelSelector />
+        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
+
+        {sections[1].map((toolBarItem) => (
+            <ToolBarButton 
+                key={toolBarItem.label}
+                {...toolBarItem}
+            />
+        ))}
+        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
+
+        {sections[2].map((toolBarItem) => (
+            <ToolBarButton 
+                key={toolBarItem.label}
+                {...toolBarItem}
+            />
+        ))}
+        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
+
         </div>
     );
 };   

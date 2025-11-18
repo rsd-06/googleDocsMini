@@ -9,6 +9,7 @@ import { TaskItem, TaskList } from '@tiptap/extension-list';
 import { TableKit } from '@tiptap/extension-table';
 import Image from '@tiptap/extension-image';
 import ImageResize from 'tiptap-extension-resize-image';
+import { TextStyle, FontFamily } from '@tiptap/extension-text-style'
 
 export const Editor = () => {
 
@@ -42,6 +43,8 @@ export const Editor = () => {
             }),
             ImageResize,
             Image,
+            TextStyle,
+            FontFamily
         ],
         content: `Hello World!`,
         // Don't render immediately on the server to avoid SSR issues
