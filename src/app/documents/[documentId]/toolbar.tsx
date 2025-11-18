@@ -2,11 +2,12 @@
 
 import { cn } from "@/lib/utils";
 import { type Level } from "@tiptap/extension-heading";
+import { type ColorResult, CirclePicker, SketchPicker } from "react-color";
 
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-import { BoldIcon, ChevronDownIcon, ItalicIcon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SpellCheck2Icon, UnderlineIcon, Undo2Icon } from "lucide-react";
+import { BoldIcon, ChevronDownIcon, HighlighterIcon, ItalicIcon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SpellCheck2Icon, UnderlineIcon, Undo2Icon } from "lucide-react";
 
 import { useEditorStore } from "@/app/store/use-editor-store";
 
@@ -223,6 +224,76 @@ const HeadingLevelSelector = () => {
     )
 };
 
+const TextColorSelector = () => {
+
+    const { editor } = useEditorStore();
+
+    const currentColor = editor?.getAttributes("textStyle").color || "#000000";
+
+    const onColorChange = (colorResult : ColorResult) => { // colorResult is the color object returned by react-color CirclePicker on selecting a color.
+        const color = colorResult.hex;
+        editor?.chain().focus().setColor(color).run();
+    };
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button className="h-7 min-w-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm"
+                >
+                    <span className="text-xs">A</span>
+                    <div
+                        className="h-0.5 w-full"
+                        style = { {backgroundColor : currentColor } }
+                    />
+                </button>
+            </DropdownMenuTrigger>
+            < DropdownMenuContent className="p-0">
+                {/* <CirclePicker 
+                    //CirclePicker is a color picker component from react-color library that displays a circle of colors to choose from. There exists other pickers too like SketchPicker, PhotoshopPicker, etc.
+                    color = {currentColor}
+                    onChange = {onColorChange} //onChange is triggered whenever a new color is selected in the CirclePicker i.e even while hovering over a color. Whereas onChangeComplete is triggered only when the user clicks on a color.
+                /> */}
+                <SketchPicker 
+                    color = {currentColor}
+                    onChange = {onColorChange}
+                />
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+};
+
+const HighlightColorSelector = () => {
+
+    const { editor } = useEditorStore();
+
+    const currentHighlightColor = editor?.getAttributes("highlight").color || "#FFFF00";
+
+    const onColorChange = (colorResult : ColorResult) => { // colorResult is the color object returned by react-color CirclePicker on selecting a color.
+        const color = colorResult.hex;
+        editor?.chain().focus().setHighlight( { color : color}).run();
+    };
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button className="h-7 min-w-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm"
+                >
+                    <HighlighterIcon className="size-4" />
+                    <div
+                        className="h-0.5 w-full"
+                        style = { {backgroundColor : currentHighlightColor } }
+                    />
+                </button>
+            </DropdownMenuTrigger>
+            < DropdownMenuContent className="p-0">
+                <SketchPicker 
+                    color = {currentHighlightColor}
+                    onChange = {onColorChange}
+                />
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+};
 
 interface ToolBarButtonProps {
     onClick? : () => void;
@@ -398,6 +469,10 @@ export const ToolBar = () => {
                 {...toolBarItem}
             />
         ))}
+        <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
+
+        <TextColorSelector />
+        <HighlightColorSelector />
         <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
 
         {sections[2].map((toolBarItem) => (
