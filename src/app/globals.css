@@ -302,4 +302,16 @@ h1 {
       outline: 3px solid var(--primary);
     }
   }
+
+  /* Link styles */
+  a {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+
+    &:hover {
+      color: blueviolet;
+      text-decoration: underline;
+    }
+  }
 }

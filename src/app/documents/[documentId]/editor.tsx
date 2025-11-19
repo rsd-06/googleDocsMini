@@ -11,7 +11,7 @@ import Image from '@tiptap/extension-image';
 import ImageResize from 'tiptap-extension-resize-image';
 import { TextStyle, FontFamily, Color } from '@tiptap/extension-text-style';
 import Highlight from '@tiptap/extension-highlight';
-
+import Link from '@tiptap/extension-link';
 
 export const Editor = () => {
 
@@ -51,6 +51,12 @@ export const Editor = () => {
             Highlight.configure({
                 multicolor: true,
             }),
+            Link.configure( {
+                autolink: true,
+                defaultProtocol: 'https',
+                protocols: ['http', 'https', 'mailto'],
+                openOnClick: false,
+            })
         ],
         content: `Hello World!`,
         // Don't render immediately on the server to avoid SSR issues

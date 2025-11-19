@@ -1,13 +1,18 @@
 "use client";
 
+import React from "react";
+
 import { cn } from "@/lib/utils";
 import { type Level } from "@tiptap/extension-heading";
 import { type ColorResult, CirclePicker, SketchPicker } from "react-color";
 
 import { Separator } from "@/components/ui/separator";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
-import { BoldIcon, ChevronDownIcon, HighlighterIcon, ItalicIcon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SpellCheck2Icon, UnderlineIcon, Undo2Icon } from "lucide-react";
+import { BoldIcon, ChevronDownIcon, HighlighterIcon, ImageIcon, ItalicIcon, Link2Icon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SearchIcon, SpellCheck2Icon, UnderlineIcon, Undo2Icon, UploadIcon } from "lucide-react";
 
 import { useEditorStore } from "@/app/store/use-editor-store";
 
@@ -295,6 +300,203 @@ const HighlightColorSelector = () => {
     )
 };
 
+const AddLinkButton = () => {
+
+    const { editor } = useEditorStore();
+
+    const [value, setValue] = React.useState("");
+    const [open, setOpen] = React.useState(false);
+    /*Why state?
+        1)
+        value — current text in the input (string)
+        setValue — function to update value
+
+        We need state to:
+            1. Store what the user types in the input field.
+            2. Update the input field when the user types.
+            3. Reset the input field after applying the link.
+
+        Without state, we can’t track or update the input value dynamically.
+
+        Because the input is a controlled component: the input’s displayed value is tied to React state 
+        ( using setValue function applied to onChange event of input).
+        so the component can read/update the typed text and prefill it when needed.
+    
+        2)
+        open — whether the dropdown is open (boolean)
+        setOpen — function to update open
+
+        We need state to:
+            We are keeping it close by default, and then when the user clicks on Apply button, we are removing the input field's value as well as closing the dropdown menu by setting 
+            the value of this open to false using setOpen function.
+        */
+
+    const onAddLink = (href : string) => {
+        editor?.chain().focus().extendMarkRange("link").setLink({ href }).run();
+        setValue(""); //Clear the input field after applying the link.
+        setOpen(false); //Close the dropdown menu after applying the link.
+    };
+    /*Why .extendMarkRange("link") & setValue("") :
+
+        Why extendMarkRange("link")?
+            In practice:
+                1. If you have a partially selected link or the cursor is inside a link node, 
+                extendMarkRange("link") extends the range to the whole link mark so the new href replaces the whole link.
+                2. If you have regular selection, it makes sure the link will be applied to the entire selected text.
+    
+        Why setValue("") after adding the link?
+            It’s UX: after applying the link, you usually want the field empty for the next link. 
+            It also gives visual feedback that the operation completed.
+    
+        */
+
+    return (
+        <DropdownMenu 
+            open ={open} //open is an built-in attribute that determines whether the dropdown menu is currently open or closed, and we are controlling it programmatically by creating our own open/close logic using state.
+            onOpenChange={ (open) => {
+                    if (open) {
+                        setValue(editor?.getAttributes("link").href || "");
+                    }   
+                }
+            /*onOpenChange :
+                This event fires whenever the dropdown menu opens or closes.
+
+                Here, when the menu opens (open === true):
+                    The function reads the current link attributes of the selection.
+                    
+                    1) We prefill the input field with the current link href if the cursor is inside a link,
+                    by calling setValue() to update the value state, which in turn updates the input field.
+                    editor?.getAttributes("link").href gets the current link URL if inside a link, otherwise undefined.
+                    
+                    2) If there’s no link, we default to an empty string "".
+
+                This way, when you open the link menu while your cursor is on a link, 
+                you see the existing URL and can edit it directly.
+
+                open is a boolean: true when the menu opens, false when it closes.
+            */
+        }>
+            <DropdownMenuTrigger asChild>
+                <button className="h-7 min-w-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm"
+                    onClick={() => setOpen( prev => !prev)} //When the user clicks on the LinkButton, we set open to Opposite of what current value of open is using setOpen function, which opens the dropdown menu. At start, its false, so clicking sets it to true, opening the menu.
+                >
+                    <Link2Icon className="size-4" />
+                </button>
+            </DropdownMenuTrigger>
+            < DropdownMenuContent className="p-2.5 flex items-center gap-x-2">
+                <Input
+                    placeholder="https://example.com"
+                    onChange = { (e) => setValue(e.target.value)}
+                    value = {value}
+                    /* Controlled Input :
+                        Here, the Input component’s value is controlled by React state (value state variable).
+                        onChange updates the state whenever the user types.
+                        setValue(e.target.value) updates React state which updates the input display (keeps it controlled).
+
+                        e is the event object; e.target is the DOM input element; e.target.value is the current typed text.
+
+                        This way, the input field always reflects the current value state.
+                        When we call setValue("") after adding the link, it clears the input field.
+                    */
+                />
+                <Button
+                    onClick={ () => onAddLink(value)}
+                > 
+                Apply
+                </Button>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
+};
+
+const AddImageButton = () => {
+
+    const { editor } = useEditorStore();
+
+    const [imageUrl, setImageUrl] = React.useState("");
+    const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+
+    const onAddImageUrl = (src : string) => {
+        editor?.chain().focus().setImage({ src }).run();
+    };
+
+    const onUploadImage = () => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+
+        input.onchange = (e) => {
+            const file = (e.target as HTMLInputElement).files?.[0];
+            if (file) {
+                const imageUrl = URL.createObjectURL(file);
+                onAddImageUrl(imageUrl);
+            }
+        }
+
+        input.click();
+    };
+
+    const handleImageUrlSubmit = () => {
+        if (imageUrl){
+            onAddImageUrl(imageUrl);
+            setImageUrl("");
+            setIsDialogOpen(false);
+        }
+    };
+    
+    return (
+        <>
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <button className="h-7 min-w-7 shrink-0 flex flex-col items-center justify-center rounded-sm hover:bg-neutral-200/80 px-1.5 overflow-hidden text-sm"
+                    >
+                        <ImageIcon className="size-4" />
+                    </button>
+                </DropdownMenuTrigger>
+                < DropdownMenuContent >
+                    <DropdownMenuItem onClick={onUploadImage}>
+                        <UploadIcon className="size-4 mr-2">
+                            Upload Image
+                        </UploadIcon>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => setIsDialogOpen(true)}
+                    >
+                        <SearchIcon className="size-4 mr-2">
+                            Paste Image URL
+                        </SearchIcon>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>   
+            </DropdownMenu>
+
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>
+                            Insert Image via URL
+                        </DialogTitle>
+                    </DialogHeader>
+                        <Input 
+                            placeholder="https://example.com/image.png"
+                            onChange = { (e) => setImageUrl(e.target.value)}
+                            onKeyDown={(e) => {
+                                if(e.key === "Enter"){
+                                    handleImageUrlSubmit();
+                                }
+                            }}
+                            value = {imageUrl}
+                        />
+                    <DialogFooter>
+                        <Button onClick={handleImageUrlSubmit}>
+                            Insert Image
+                        </Button>
+                </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        </> 
+    )
+};
+
 interface ToolBarButtonProps {
     onClick? : () => void;
     isActive? : boolean;
@@ -474,6 +676,9 @@ export const ToolBar = () => {
         <TextColorSelector />
         <HighlightColorSelector />
         <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
+
+        <AddLinkButton />
+        <AddImageButton />
 
         {sections[2].map((toolBarItem) => (
             <ToolBarButton 
