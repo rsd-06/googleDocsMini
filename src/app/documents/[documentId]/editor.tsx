@@ -9,9 +9,10 @@ import { TaskItem, TaskList } from '@tiptap/extension-list';
 import { TableKit } from '@tiptap/extension-table';
 import Image from '@tiptap/extension-image';
 import ImageResize from 'tiptap-extension-resize-image';
-import { TextStyle, FontFamily, Color } from '@tiptap/extension-text-style';
+import { TextStyle, FontFamily, FontSize, LineHeight, Color } from '@tiptap/extension-text-style';
 import Highlight from '@tiptap/extension-highlight';
 import Link from '@tiptap/extension-link';
+import TextAlign from '@tiptap/extension-text-align';
 
 export const Editor = () => {
 
@@ -56,7 +57,12 @@ export const Editor = () => {
                 defaultProtocol: 'https',
                 protocols: ['http', 'https', 'mailto'],
                 openOnClick: false,
-            })
+            }),
+            TextAlign.configure({
+                types: ['heading', 'paragraph'],
+            }),
+            FontSize,
+            LineHeight,
         ],
         content: `Hello World!`,
         // Don't render immediately on the server to avoid SSR issues
