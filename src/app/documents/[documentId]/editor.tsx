@@ -4,6 +4,8 @@ import { useEditor, EditorContent } from '@tiptap/react';
 
 import { useEditorStore } from '@/app/store/use-editor-store';
 
+import { Ruler } from './ruler';
+
 import StarterKit from '@tiptap/starter-kit';
 import { TaskItem, TaskList } from '@tiptap/extension-list';
 import { TableKit } from '@tiptap/extension-table';
@@ -105,6 +107,7 @@ export const Editor = () => {
 
     return ( 
         <div className="size-full overflow-x-auto bg-[#F9FBFD] px-4 print:p-0 print:bg-white print:overflow-visible">
+            <Ruler />
             <div className='min-w-max flex justify-center w-[816px] py-4 mx-auto print:py-0 print:min-w-0'>
                 <EditorContent editor = {editor} />
             </div>
