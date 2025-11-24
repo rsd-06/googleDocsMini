@@ -3,7 +3,7 @@ import React from "react";
 import { FaCaretDown } from "react-icons/fa";
 
 
-const markers = Array.from({ length: 83 }, (_, i) => i + 1);
+const markers = Array.from({ length: 83 }, (_, i) => i);
 
 export const Ruler = () => {
 
