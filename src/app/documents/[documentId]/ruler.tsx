@@ -65,7 +65,7 @@ export const Ruler = () => {
 
     return (
         <div 
-            className="h-6 border-b border-gray-300 flex items-end relative select-none print-hidden"
+            className="h-6 border-b border-gray-300 flex items-end relative select-none print:hidden"
             ref = {rulerRef}
             onMouseMove = {handleMouseMove}
             onMouseUp = {handleMouseUp}
@@ -93,7 +93,7 @@ export const Ruler = () => {
                     <div className="relative h-full w-[816px]">
                         {
                             markers.map((marker) => {
-                                const position = (marker * 816) / 82;
+                                const position = (marker * 816) / 83;
 
                                 return (
                                     <div
