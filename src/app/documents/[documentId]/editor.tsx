@@ -66,7 +66,7 @@ export const Editor = () => {
             FontSize,
             LineHeight,
         ],
-        content: `Hello World!`,
+        
         // Don't render immediately on the server to avoid SSR issues
         immediatelyRender: false,
 
