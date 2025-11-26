@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { BoldIcon, FileIcon, FileJsonIcon, FilePenIcon, FilePlusIcon, FileTextIcon, GlobeIcon, ItalicIcon, PrinterIcon, Redo2Icon, RemoveFormatting, RemoveFormattingIcon, StrikethroughIcon, TextIcon, TrashIcon, UnderlineIcon, Undo2Icon } from "lucide-react";
+import { BoldIcon, FileIcon, FileJsonIcon, FilePenIcon, FilePlusIcon, FileTextIcon, GlobeIcon, ItalicIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, StrikethroughIcon, TextIcon, TrashIcon, UnderlineIcon, Undo2Icon } from "lucide-react";
 import { BsFilePdf } from "react-icons/bs";
 
 import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarShortcut, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarTrigger } from "@/components/ui/menubar";
@@ -131,18 +131,6 @@ export const Navbar = () => {
                                     </MenubarItem>
                                 </MenubarContent>
                             </MenubarMenu>
-
-                            <MenubarContent>
-                                <MenubarContent>
-                                    <MenubarSubContent>
-                                        Save
-                                    </MenubarSubContent>
-                                    <MenubarItem>
-                                        
-                                    </MenubarItem>
-                                </MenubarContent>
-                            </MenubarContent>
-
                 
 
                             <MenubarMenu>
