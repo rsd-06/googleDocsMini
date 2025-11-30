@@ -1,11 +1,21 @@
-import { Button } from "@/components/ui/button";
+"use client";
 
-import Link from "next/link";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 import { Navbar } from "./navbar";
 import { TemplatesGallery } from "./templates-gallery";
 
 export default function Home() {
+
+  const documents = useQuery(api.documents.getDocuments);
+  
+  if (documents === undefined) {
+    return (
+      <p>Loading...</p>
+    )
+  };
+
   return(
       <div className="min-h-screen flex flex-col">
 
@@ -15,6 +25,13 @@ export default function Home() {
 
         <div className="mt-16">
           <TemplatesGallery />
+          {documents?.map((document) => (
+            <span
+              key={document._id}
+            >
+              {document.title}
+            </span>
+          ))}
         </div>
 
       </div>
