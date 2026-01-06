@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { SearchInput } from "./search-input";
+import { UserButton } from "@clerk/clerk-react";
 
 export const Navbar = () => {
     return (
@@ -15,7 +16,7 @@ export const Navbar = () => {
 
             <SearchInput />
 
-            <div />
+            <UserButton />
         </nav>
     );
 };
