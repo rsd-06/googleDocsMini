@@ -26,6 +26,61 @@ export const createDocument = mutation({
     }
 });
 
+export const removeDocumentById = mutation({
+    args: {
+        documentId: v.id("documents"),
+    },
+    handler: async (ctx, args) => {
+        const user = await ctx.auth.getUserIdentity();
+
+        if (!user) {
+            throw new ConvexError("Unauthorized");
+        };
+
+        const document = await ctx.db.get(args.documentId);
+    
+        if (!document) {
+            throw new ConvexError("Document not found");
+        };
+
+        const isOwner = document.ownerId === user.subject;
+
+        if (!isOwner) {
+            throw new ConvexError("Forbidden");
+        };
+
+        return await ctx.db.delete(args.documentId);
+    },
+});
+
+export const updateDocumentById = mutation({
+    args: {
+        documentId: v.id("documents"),
+        title: v.string(),
+    },
+    handler: async (ctx, args) => {
+        const user = await ctx.auth.getUserIdentity();
+
+        if (!user) {
+            throw new ConvexError("Unauthorized");
+        };
+
+        const document = await ctx.db.get(args.documentId);
+    
+        if (!document) {
+            throw new ConvexError("Document not found");
+        };
+
+        const isOwner = document.ownerId === user.subject;
+
+        if (!isOwner) {
+            throw new ConvexError("Forbidden");
+        };
+
+        return await ctx.db.patch(args.documentId, { title: args.title });
+    },
+});
+
 export const getDocuments = query({
     args : { paginationOpts: paginationOptsValidator },
     handler: async (ctx, args) => {

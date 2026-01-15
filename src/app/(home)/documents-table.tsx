@@ -10,6 +10,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 
 import { Doc } from "../../../convex/_generated/dataModel";
 import { LoaderIcon } from "lucide-react";
@@ -66,7 +67,17 @@ export const DocumentsTable = ({
                     </Table>
                 )
             }
+            <div className="flex items-center justify-center">
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    disabled={status !== "CanLoadMore"}
+                    onClick={() => loadMore(5)}
+                >
+                    { status === "CanLoadMore" ? "Load More" : "End of Results"}
+                </Button>
+            </div>
         </div>
 
     );
-};                         
+};                          
