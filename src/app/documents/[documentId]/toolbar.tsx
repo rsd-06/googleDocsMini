@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { AlignCenterIcon, AlignJustifyIcon, AlignLeftIcon, AlignRightIcon, BoldIcon, ChevronDownIcon, HighlighterIcon, ImageIcon, ItalicIcon, Link2Icon, ListCollapse, ListCollapseIcon, ListIcon, ListOrderedIcon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, MinusIcon, PlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SearchIcon, SpellCheck2Icon, UnderlineIcon, Undo2Icon, UploadIcon } from "lucide-react";
+import { AlignCenterIcon, AlignJustifyIcon, AlignLeftIcon, AlignRightIcon, BoldIcon, ChevronDownIcon, HighlighterIcon, ImageIcon, ItalicIcon, Link2Icon, ListCollapse, ListCollapseIcon, ListIcon, ListOrderedIcon, ListTodoIcon, LucideIcon, MessageSquarePlusIcon, MinusIcon, PlusIcon, PrinterIcon, Redo2Icon, RemoveFormattingIcon, SearchIcon, SpellCheck2Icon, UnderlineIcon, Undo2Icon, UploadIcon } from "lucide-react"
 
 import { useEditorStore } from "@/app/store/use-editor-store";
 import { useEditor } from "@tiptap/react";
@@ -900,10 +900,10 @@ export const ToolBar = () => {
                 label: "Comment", 
                 icon: MessageSquarePlusIcon, 
                 onClick: () => {
-                    // Placeholder for comment functionality
-                    console.log("Add Comment Clicked");
+                    console.log("comment");
+                    editor?.chain().focus().addPendingComment().run();
                 }, 
-                isActive: false
+                isActive: editor?.isActive("liveblocksCommentMark")
             },
             {
                 label: "List Todo", 
@@ -956,7 +956,6 @@ export const ToolBar = () => {
         <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
 
         <AddLinkButton />
-        <CommentButton />
         <AddImageButton />
         <Separator orientation="vertical" className="h-6 mx-1 bg-neutral-300" />
 

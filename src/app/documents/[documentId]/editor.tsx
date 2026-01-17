@@ -1,10 +1,12 @@
 'use client';
 
 import { useEditor, EditorContent } from '@tiptap/react';
+import { useLiveblocksExtension, FloatingToolbar } from "@liveblocks/react-tiptap";
 
 import { useEditorStore } from '@/app/store/use-editor-store';
 
 import { Ruler } from './ruler';
+import { Threads } from './threads';
 
 import StarterKit from '@tiptap/starter-kit';
 import { TaskItem, TaskList } from '@tiptap/extension-list';
@@ -20,6 +22,8 @@ export const Editor = () => {
 
     // Get the setEditor function from the Zustand store to update the editor instance.
     const { setEditor} = useEditorStore();
+
+    const liveblocks = useLiveblocksExtension();
 
     // Initialize the TipTap editor with various extensions and configurations.
     // The editor instance is created using the useEditor hook from TipTap.
@@ -38,7 +42,11 @@ export const Editor = () => {
             }
         },
         extensions: [
-            StarterKit,
+            liveblocks,
+            StarterKit.configure({
+                // The liveblocks extension handles undo/redo functionality in a collaborative environment.
+                undoRedo: false,
+            }),
             TaskList,
             TaskItem.configure({
                 nested: true,
@@ -110,6 +118,7 @@ export const Editor = () => {
             <Ruler />
             <div className='min-w-max flex justify-center w-[816px] py-4 mx-auto print:py-0 print:min-w-0'>
                 <EditorContent editor = {editor} />
+                <Threads editor={editor} />
             </div>
         </div>
     );

@@ -8,6 +8,8 @@ import { BsFilePdf } from "react-icons/bs";
 
 import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarShortcut, MenubarSub, MenubarSubContent, MenubarSubTrigger, MenubarTrigger } from "@/components/ui/menubar";
 
+import { UserButton, OrganizationSwitcher } from "@clerk/clerk-react";
+
 import { DocumentInput } from "./document-input";
 
 import { useEditorStore } from "@/app/store/use-editor-store";
@@ -259,6 +261,15 @@ export const Navbar = () => {
                         </Menubar>
                     </div>
                 </div>
+            </div>
+            <div className="flex gap-3 items-center pl-6">
+                <OrganizationSwitcher
+                    afterCreateOrganizationUrl="/"
+                    afterLeaveOrganizationUrl="/"
+                    afterSelectOrganizationUrl="/"
+                    afterSelectPersonalUrl="/"
+                />
+                <UserButton />
             </div>
         </nav>
     );

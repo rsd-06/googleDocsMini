@@ -14,11 +14,14 @@ export const createDocument = mutation({
         if (!user) {
             throw new ConvexError("Unauthorized");
         };
+
+        const organisationId = ( user.organisation_id ?? undefined ) as string | undefined;
         
         const documentId = await ctx.db.insert("documents", {
             title: args.title ?? "Untitled Document",
             initialContent: args.initialContent,
             ownerId: user.subject,
+            organisationId: organisationId,
         });
 
         return documentId;
@@ -43,9 +46,12 @@ export const removeDocumentById = mutation({
             throw new ConvexError("Document not found");
         };
 
-        const isOwner = document.ownerId === user.subject;
+        const organisationId = ( user.organisation_id ?? undefined ) as string | undefined;
 
-        if (!isOwner) {
+        const isOwner = document.ownerId === user.subject;
+        const isOrganisationMember = organisationId && document.organisationId === organisationId;
+
+        if (!isOwner && !isOrganisationMember) {
             throw new ConvexError("Forbidden");
         };
 
@@ -71,9 +77,12 @@ export const updateDocumentById = mutation({
             throw new ConvexError("Document not found");
         };
 
-        const isOwner = document.ownerId === user.subject;
+        const organisationId = ( user.organisation_id ?? undefined ) as string | undefined;
 
-        if (!isOwner) {
+        const isOwner = document.ownerId === user.subject;
+        const isOrganisationMember = organisationId && document.organisationId === organisationId;
+
+        if (!isOwner && !isOrganisationMember) {
             throw new ConvexError("Forbidden");
         };
 
@@ -95,11 +104,33 @@ export const getDocuments = query({
             throw new ConvexError("Unauthoized");
         };
 
+        const organisationId = ( user.organisation_id ?? undefined ) as string | undefined;
+
+        //All organisation documents
+        if(organisationId){
+            return await ctx.db
+                .query("documents")
+                .withIndex("by_organisation_id", (doc) => doc.eq("organisationId", organisationId))
+                .paginate(paginationOpts);
+        }
+
+        //Search with organisation documents
+        if (search && organisationId) {
+            return await ctx.db
+                .query("documents")
+                .withSearchIndex("search_title", (doc) => 
+                    doc.search("title", search).eq("organisationId", organisationId)
+                )
+                .paginate(paginationOpts);
+        };
+
+        //Search with personal documents
         if (search) {
             return await ctx.db.query("documents")
                 .withSearchIndex("search_title", (doc) => doc.search("title", search).eq("ownerId", user.subject)).paginate(paginationOpts);
         };
 
+        //All persoanal documents
         return await ctx.db
             .query("documents")
             .withIndex("by_owner_id", (doc) => doc.eq("ownerId", user.subject))
