@@ -49,7 +49,7 @@ export const removeDocumentById = mutation({
         const organisationId = ( user.organisation_id ?? undefined ) as string | undefined;
 
         const isOwner = document.ownerId === user.subject;
-        const isOrganisationMember = organisationId && document.organisationId === organisationId;
+        const isOrganisationMember = ( document.organisationId && document.organisationId === organisationId ) ? true : false;
 
         if (!isOwner && !isOrganisationMember) {
             throw new ConvexError("Forbidden");
@@ -80,7 +80,7 @@ export const updateDocumentById = mutation({
         const organisationId = ( user.organisation_id ?? undefined ) as string | undefined;
 
         const isOwner = document.ownerId === user.subject;
-        const isOrganisationMember = organisationId && document.organisationId === organisationId;
+        const isOrganisationMember = ( document.organisationId && document.organisationId === organisationId ) ? true : false;
 
         if (!isOwner && !isOrganisationMember) {
             throw new ConvexError("Forbidden");
@@ -137,3 +137,15 @@ export const getDocuments = query({
             .paginate(paginationOpts)
     },
 }); 
+
+export const getDocumentById = query({
+    args: {
+        documentId: v.id("documents"),
+    },
+    handler: async ( ctx, { documentId }) => {
+
+        const document = await ctx.db.get(documentId);
+        
+        return document;
+    },
+});
