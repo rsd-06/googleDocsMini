@@ -10,6 +10,7 @@ import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, Me
 
 import { UserButton, OrganizationSwitcher } from "@clerk/clerk-react";
 
+import { Avatars } from "./avatars";
 import { DocumentInput } from "./document-input";
 
 import { useEditorStore } from "@/app/store/use-editor-store";
@@ -263,6 +264,7 @@ export const Navbar = () => {
                 </div>
             </div>
             <div className="flex gap-3 items-center pl-6">
+                <Avatars />
                 <OrganizationSwitcher
                     afterCreateOrganizationUrl="/"
                     afterLeaveOrganizationUrl="/"
