@@ -47,6 +47,7 @@ export const Editor = ({ initialContent } : EditorProps) => {
     // After creating the editor instance, we call setEditor to update the editor and store it in our Zustand store for global access.
 
     const editor = useEditor({
+        autofocus: true,
         editorProps: {
             attributes: {
                 style: `padding-left: ${leftMargin}px; padding-right: ${rightMargin}px;`,
