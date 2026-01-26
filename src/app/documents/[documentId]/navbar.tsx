@@ -103,7 +103,7 @@ export const Navbar = ({ data } : NavbarProps) => {
                     <Image src={"/logo.svg"} alt="Logo" width={36} height={36} />                
                 </Link>
                 <div className="flex flex-col">
-                    <DocumentInput title={data.title} id={data._id} />
+                    <DocumentInput title={data.title} documentId={data._id} />
                     
                     {/*MenuBar*/}
                     <div className="flex">
@@ -149,7 +149,7 @@ export const Navbar = ({ data } : NavbarProps) => {
                                         >
                                         <FilePenIcon className="size-4 mr-2" />
                                         Rename
-                                    </MenubarItem>
+                                        </MenubarItem>
                                     </RenameDialog>
                                     
                                     <RemoveDialog documentId={data._id}>

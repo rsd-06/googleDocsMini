@@ -208,7 +208,7 @@ const HeadingLevelSelector = () => {
                             key =  {level}
                             className = {cn(
                                 "flex items-center gap-x-2 px-2 py-1 rounded-sm hover:bg-neutral-200/80",
-                                (editor?.isActive("heading", { level : level} || level === 0 && !editor?.isActive("heading") )) && "bg-neutral-200/80")
+                                (editor?.isActive("heading", { level }) || (level === 0 && !editor?.isActive("heading") )) && "bg-neutral-200/80")
                             }
                             style={ { fontSize: fontSize } } //Applying font size to each heading level in the dropdown. So that the preview looks accurate to the heading Size and the user can see how the heading will look.
                             onClick={ () => {
@@ -777,7 +777,7 @@ const LineHeightSelector = () => {
 interface ToolBarButtonProps {
     onClick? : () => void;
     isActive? : boolean;
-    icon?: LucideIcon
+    icon: LucideIcon
 };
 
 const ToolBarButton = ( {onClick, isActive, icon : Icon} : ToolBarButtonProps ) => {

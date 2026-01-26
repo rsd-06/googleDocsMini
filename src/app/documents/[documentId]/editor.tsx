@@ -18,15 +18,24 @@ import Highlight from '@tiptap/extension-highlight';
 import Link from '@tiptap/extension-link';
 import TextAlign from '@tiptap/extension-text-align';
 
-export const Editor = () => {
+import { LEFT_MARGIN_DEFAULT, RIGHT_MARGIN_DEFAULT } from "@/constants/margin";
+
+interface EditorProps {
+    initialContent?: string | undefined;
+};
+
+export const Editor = ({ initialContent } : EditorProps) => {
 
     // Get the setEditor function from the Zustand store to update the editor instance.
     const { setEditor} = useEditorStore();
 
-    const liveblocks = useLiveblocksExtension();
+    const liveblocks = useLiveblocksExtension({
+        initialContent,
+        offlineSupport_experimental: true,
+    });
 
-    const leftMargin = useStorage((root) => root.leftMargin);
-    const rightMargin = useStorage((root) => root.rightMargin);
+    const leftMargin = useStorage((root) => root.leftMargin) ?? LEFT_MARGIN_DEFAULT;
+    const rightMargin = useStorage((root) => root.rightMargin) ?? RIGHT_MARGIN_DEFAULT;
 
     // Initialize the TipTap editor with various extensions and configurations.
     // The editor instance is created using the useEditor hook from TipTap.
@@ -40,7 +49,7 @@ export const Editor = () => {
     const editor = useEditor({
         editorProps: {
             attributes: {
-                style: `padding-left: ${leftMargin ?? 56}px; padding-right: ${rightMargin ?? 56}px;`,
+                style: `padding-left: ${leftMargin}px; padding-right: ${rightMargin}px;`,
                 class: 'focus:outline-none border border-[#C7C7C7] shadow flex flex-col min-h-[1054px] w-[816px] pt-10 pr-14 pb-10 cursor-text print:border-0 print:min-h-0 print:w-full print:shadow-none',
             }
         },
